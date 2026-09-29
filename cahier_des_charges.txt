@@ -1,0 +1,233 @@
+Movie Intelligence - Analyse, Classification et Clustering de Films
+=================================================================
+
+Version de travail adaptée le 28/09/2026 : la partie recommandation a été
+retirée à la demande de l'apprenant. Les autres exigences sont conservées.
+
+Assigné : Driss Aharhar
+Créé : 26/09/2026
+Durée : 10 jours, du 28/09/2026 au 07/10/2026
+Modalité : Individuel
+Référentiel : [2023] Certification RNCP Développeur.se en intelligence artificielle
+Compétences : Compétences transversales
+Ressource : TMDB
+
+CONTEXTE
+--------
+Une plateforme de contenus souhaite exploiter son catalogue de films afin de
+mieux comprendre ses données et identifier des profils de films.
+
+Les données seront extraites automatiquement depuis l'API publique TMDB. Elles
+combinent données structurées (notes, durée, date, genres...) et textuelles
+(titres, synopsis, mots-clés).
+
+SOURCE DES DONNÉES
+------------------
+Utiliser l'API TMDB avec une extraction automatisée en Python.
+
+L'extraction devra gérer :
+- authentification et variables d'environnement ;
+- pagination ;
+- erreurs HTTP et réponses vides ;
+- limitation éventuelle des requêtes ;
+- sauvegarde des données brutes.
+
+Une extraction de 1 000 à 3 000 films est recommandée. Les données brutes
+devront être conservées localement afin d'éviter de solliciter inutilement l'API.
+
+OBJECTIF MÉTIER
+--------------
+- Classification : prédire si un film appartient à une catégorie de films à
+  fort engagement.
+- Clustering : identifier automatiquement des groupes de films similaires.
+
+ÉTAPE 1 - EXTRACTION ET PRÉPARATION
+----------------------------------
+Développer un module Python avec Requests ou équivalent.
+
+Récupérer notamment : movie_id, title, overview, release_date, runtime,
+original_language, genres, keywords, budget, revenue, popularity,
+vote_average, vote_count.
+
+Sauvegarder les réponses JSON dans data/raw/.
+
+ÉTAPE 2 - NETTOYAGE ET STOCKAGE
+------------------------------
+Transformer les données avec Pandas :
+- analyse des types et structures ;
+- valeurs manquantes et doublons ;
+- détection des incohérences ;
+- conversion des dates ;
+- séparation des variables numériques, catégorielles et textuelles.
+
+Stocker également les films dans MongoDB.
+Réaliser plusieurs requêtes MongoDB et au moins une agrégation utilisant
+$match, $group, $sort, $project ou $unwind.
+
+ÉTAPE 3 - EDA ET VISUALISATION
+-----------------------------
+Réaliser une analyse avec Pandas, Matplotlib et Seaborn.
+
+Produire des visualisations pertinentes :
+- distribution des notes et popularités ;
+- films par genre ;
+- sorties par année ;
+- durée ;
+- budget/revenus ;
+- votes/popularité ;
+- boxplots et corrélations.
+
+Chaque graphique devra être accompagné d'une courte interprétation.
+
+ÉTAPE 4 - FEATURE ENGINEERING
+-----------------------------
+Créer des variables telles que :
+- année, mois et décennie ;
+- nombre de genres et de mots-clés ;
+- catégories de durée ;
+- autres indicateurs pertinents.
+
+Justifier les variables créées et éviter tout Data Leakage.
+
+ÉTAPE 5 - NLP AVEC TF-IDF
+------------------------
+Exploiter overview avec :
+- nettoyage du texte ;
+- traitement des valeurs manquantes ;
+- TfidfVectorizer ;
+- expérimentation de max_features et ngram_range.
+
+Analyser les dimensions de la matrice et les termes représentatifs.
+
+ÉTAPE 6 - CLASSIFICATION
+------------------------
+Créer high_engagement à partir d'un indicateur comme vote_count, avec un
+seuil justifié.
+
+Important : la variable utilisée pour créer la cible ne doit pas être utilisée
+comme feature.
+
+Comparer au minimum 3 modèles :
+- Logistic Regression ;
+- Random Forest ;
+- Linear SVM.
+
+Utiliser Pipeline et ColumnTransformer si nécessaire.
+Évaluer avec Accuracy, Precision, Recall, F1-score, ROC-AUC et matrice de
+confusion.
+
+ÉTAPE 7 - VALIDATION ET OPTIMISATION
+-----------------------------------
+Utiliser StratifiedKFold avec cross_validate.
+Appliquer GridSearchCV sur au moins un modèle afin de tester une grille
+d'hyperparamètres et comparer les résultats avant/après optimisation.
+
+ÉTAPE 8 - CLUSTERING
+-------------------
+Réaliser un clustering avec K-Means à partir de variables structurées et/ou
+TF-IDF.
+Tester plusieurs valeurs de K et utiliser le Silhouette Score.
+Interpréter les caractéristiques des clusters.
+Pour la visualisation du TF-IDF, utiliser éventuellement TruncatedSVD en 2D.
+
+ÉTAPE 9 - INTÉGRATION
+---------------------
+Créer une application Streamlit présentant :
+- dashboard et visualisations ;
+- classification ;
+- clusters.
+
+Automatiser avec Airflow :
+Extraction -> Nettoyage -> Features -> MongoDB -> ML
+
+Conteneuriser avec Docker.
+Sauvegarder les modèles et objets de prétraitement avec joblib afin d'éviter
+leur réentraînement dans Streamlit.
+
+ORGANISATION CONSEILLÉE SUR 10 JOURS
+------------------------------------
+J1  | API + authentification + extraction + Raw JSON
+J2  | Nettoyage + structuration + MongoDB
+J3  | EDA + visualisation + Feature Engineering
+J4  | NLP + TF-IDF
+J5  | Classification + 3 modèles
+J6  | Cross-Validation + GridSearchCV
+J7  | K-Means + Silhouette Score
+J8  | Interprétation des clusters + consolidation des analyses
+J9  | Airflow + Docker + intégration
+J10 | Streamlit + tests + finalisation
+
+MODALITÉS PÉDAGOGIQUES ET D'ÉVALUATION
+--------------------------------------
+Débriefing individuel : 25 à 30 minutes par apprenant, sur des créneaux
+annoncés par le formateur.
+
+- Présentation en français (5 min) : contexte et objectifs métier, source
+  TMDB, données exploitées, classification et clustering.
+- Démonstration fonctionnelle (5 min) : extraction et préparation, EDA,
+  entraînement, clusters et Streamlit.
+- Lecture de code et questions techniques (10 min) : données manquantes et
+  API, MongoDB et agrégations, Feature Engineering, TF-IDF, modèles,
+  Cross-Validation, GridSearchCV, K-Means, Silhouette Score et métriques
+  d'évaluation.
+- Mise en situation ciblée (10 min) : modifier, corriger ou compléter une
+  requête MongoDB, TF-IDF, une feature, un hyperparamètre ou les clusters,
+  puis vérifier la cohérence du résultat.
+
+LIVRABLES
+---------
+Un dépôt Git organisé et documenté, contenant :
+- le code source structuré, par exemple data/, notebooks/, src/, models/,
+  dashboard/, dags/, tests/ ;
+- les données utilisées ou les instructions pour les récupérer depuis TMDB ;
+- les données brutes JSON extraites de l'API ;
+- les notebooks d'exploration et d'analyse, Feature Engineering, TF-IDF,
+  entraînement et évaluation, et clustering ;
+- les scripts Python d'extraction, nettoyage, stockage et Machine Learning ;
+- les modèles et objets de prétraitement sauvegardés en .pkl ou .joblib ;
+- les fichiers MongoDB, requêtes et agrégations ;
+- les DAGs Airflow ;
+- requirements.txt ;
+- Dockerfile et, si nécessaire, docker-compose.yml ;
+- les fichiers de l'application Streamlit ;
+- les tests des principales fonctionnalités.
+
+README CLAIR ET COMPLET
+-----------------------
+Le README doit contenir :
+- la description du projet et du problème métier ;
+- l'API TMDB et la méthode d'extraction ;
+- les principales variables utilisées ;
+- le nettoyage et la préparation ;
+- le Feature Engineering ;
+- le traitement TF-IDF ;
+- les modèles de classification ;
+- la stratégie pour high_engagement ;
+- la validation croisée et GridSearchCV ;
+- la comparaison des performances et les métriques ;
+- K-Means, le choix du nombre de clusters et leur interprétation ;
+- l'installation et la configuration de l'API ;
+- l'exécution du pipeline et de Streamlit ;
+- l'exécution avec Airflow et Docker ;
+- des captures d'écran de Streamlit ;
+- des exemples de classification et de clusters.
+
+DIAGRAMME
+---------
+Un diagramme UML ou d'architecture doit représenter :
+- l'organisation générale du projet ;
+- TMDB API -> Extraction -> Nettoyage -> MongoDB -> ML -> Streamlit ;
+- les étapes du pipeline Machine Learning ;
+- les composants de classification et de clustering ;
+- les principaux composants Python, Airflow et MongoDB.
+
+CRITÈRES DE PERFORMANCE
+----------------------
+1. Qualité de l'extraction, du nettoyage et de la préparation des données.
+2. Pertinence du Feature Engineering et gestion du Data Leakage.
+3. Qualité du traitement NLP et de la vectorisation TF-IDF.
+4. Qualité et diversité des modèles de classification.
+5. Validation croisée et optimisation des hyperparamètres.
+6. Qualité du clustering et interprétation des groupes obtenus.
+7. Qualité de l'application Streamlit, de l'automatisation et de la
+   reproductibilité du projet.
