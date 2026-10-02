@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 import time
 
 import requests
@@ -40,8 +41,16 @@ else:
 
 
 def save_raw():
-    with open(RAW_FILE, "w", encoding="utf-8") as file:
+    # Complete the new JSON in the system temp folder before replacing the old one.
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as file:
         json.dump(raw, file, ensure_ascii=False, indent=2)
+    for attempt in range(10):
+        try:
+            os.replace(file.name, RAW_FILE)
+            return
+        except PermissionError:
+            time.sleep(1)
+    raise RuntimeError("Could not save JSON. Completed copy: " + file.name)
 
 
 page_number = 1
