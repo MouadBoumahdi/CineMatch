@@ -4,3 +4,8 @@ pandas
 pymongo
 matplotlib
 seaborn
+scikit-learn
+nbformat
+nbclient
+ipykernel
+notebook

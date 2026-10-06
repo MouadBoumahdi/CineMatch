@@ -4,16 +4,49 @@ Le projet étudie un catalogue de films TMDB pour répondre à deux questions : 
 
 L'engagement sera défini à partir de `vote_count` (nombre de votes). Par exemple, si le seuil retenu est 1 000 votes, un film qui en a 3 000 appartient à la catégorie « fort engagement ». Le seuil définit la réponse à prédire ; il sera choisi et justifié lors de la classification.
 
+## Parcours principal en notebooks
+
+Ouvrir les notebooks dans cet ordre et executer les cellules de haut en bas. La premiere cellule retrouve le dossier du projet depuis la racine ou `notebooks/`.
+
+| Notebook | Role | Verification de cette migration |
+| --- | --- | --- |
+| [01_extraction](notebooks/01_extraction.ipynb) | Extraction TMDB et reprise | Execute sur le cache de 3000 films, sans nouvel appel API |
+| [02_cleaning](notebooks/02_cleaning.ipynb) | Nettoyage et export JSON | Execute |
+| [02b_mongodb](notebooks/02b_mongodb.ipynb) | Chargement, requetes et agregation | Execute : 3000 films, requetes et agregation verifiees |
+| [03_eda](notebooks/03_eda.ipynb) | Graphiques affiches dans le notebook | Execute |
+| [04_features](notebooks/04_features.ipynb) | Donnees originales et variables derivees | Execute |
+| [05_tfidf](notebooks/05_tfidf.ipynb) | Exercice TF-IDF actuel, 1000 termes maximum | Execute, etape 5 encore en cours |
+
+Installer les dependances puis lancer `python -m notebook` depuis le projet. Les scripts `src/` restent disponibles pour l'automatisation demandee dans le cahier des charges. Les notebooks deviennent le support principal d'apprentissage. Les etapes 6 a 9 ne sont pas implementees par cette migration.
+
+### Contenu des JSON
+
+- `data/raw/tmdb_raw.json` : source brute preservee.
+- `data/processed/movies.json` : 14 champs nettoyes par film.
+- `data/processed/movie_features.json` : 39 champs par film, comprenant les 14 champs originaux, les 7 variables derivees et les 18 indicateurs de genre.
+- `data/backups/` : copie des JSON traites avant migration.
+
+Le fichier de features conserve donc `overview`, `genres`, `keywords`, `vote_count`, `vote_average`, `popularity`, `budget` et `revenue`. Un indicateur comme `genre_Action` vaut 1 si le film appartient a ce genre et 0 sinon. Plusieurs indicateurs peuvent valoir 1 pour un meme film : aucun genre principal arbitraire n'est impose.
+
+Ce fichier est un jeu de donnees enrichi, pas la matrice finale X. La cible reste `high_engagement` selon le cahier des charges; son seuil sera choisi et justifie a l'etape 6. Si elle est construite avec `vote_count`, cette colonne doit etre exclue de X. Les notes, revenus et popularites observes apres sortie ne conviennent pas a une prediction avant sortie. Le cahier des charges demande high_engagement, pas la prediction du genre. Aucun changement de cible nest applique.
+
+Validation locale : 3000 identifiants uniques, conservation des champs nettoyes, verification des indicateurs de genre et des compteurs sur tous les films. Les notebooks des etapes 1 a 4, MongoDB compris, ont ete executes sans erreur le 05/10/2026. Le notebook 05 avait ete execute pendant la migration precedente. Le TF-IDF sur tous les films est exploratoire; pour evaluer un classifieur, il faudra ajuster le vectoriseur uniquement dans les donnees d'entrainement de chaque decoupage.
+
+## Verification des etapes 1 a 4
+
+Voir [le bilan des exigences](STEPS_1_4_REVIEW.md) et [les mesures de verification](data/processed/steps_1_4_validation.json). Les interpretations accompagnent maintenant chaque graphique dans le notebook EDA; les justifications et limites des features figurent dans le notebook 04.
+
 ## Où en est le projet ?
 
 | Étape | Résultat | État |
 | --- | --- | --- |
 | 1. Extraction | 3 000 films et réponses TMDB dans `data/raw/tmdb_raw.json` | Réalisée |
 | 2. Nettoyage | 3 000 films uniques dans `data/processed/movies.json` | Réalisé |
-| 2. MongoDB | Code Python de chargement et de requêtes | À exécuter et vérifier par l'apprenant |
+| 2. MongoDB | Code Python de chargement et de requêtes | Verifie : 3000 films, index unique et agregation |
 | 3. EDA | Huit graphiques dans `data/processed/plots/` | Réalisée |
 | 4. Features | `data/processed/movie_features.json` | Réalisée |
-| 5 et suivantes | TF-IDF, classification, validation, clustering, application | À faire |
+| 5 | TF-IDF exploratoire dans le notebook | En cours |
+| 6 et suivantes | Classification, validation, clustering, application | À faire |
 
 **Aucun modèle n'a encore été entraîné.** Les graphiques décrivent les données ; ils ne constituent pas une prédiction.
 
@@ -26,7 +59,7 @@ Depuis le dossier du projet, installer les dépendances avec `python -m pip inst
 3. `python src/clean_movies.py` : nettoyer les films et créer le fichier structuré.
 4. `python src/eda_movies.py` : recréer les huit graphiques.
 5. `python src/create_features.py` : créer les nouvelles variables.
-6. Après avoir démarré MongoDB, `python src/load_mongodb.py` : charger les films et afficher deux requêtes et une agrégation des genres. Si MongoDB n'est pas local, définir `MONGO_URL` dans `.env`. **Cette commande n'a pas encore été exécutée ni vérifiée sur la base.**
+6. Après avoir démarré MongoDB, `python src/load_mongodb.py` : charger les films et afficher deux requêtes et une agrégation des genres. Si MongoDB n'est pas local, définir `MONGO_URL` dans `.env`. **Execute et verifie le 05/10/2026 : 3000 films.**
 
 Les principales données recueillies sont `movie_id`, `title`, `overview`, `release_date`, `runtime`, `original_language`, `genres`, `keywords`, `budget`, `revenue`, `popularity`, `vote_average` et `vote_count`. Le nettoyage convertit les dates et les nombres, supprime les doublons d'identifiant et conserve les valeurs manquantes visibles. Dans ce jeu de données, 39 durées et 2 dates manquent ; les budgets ou revenus égaux à zéro peuvent signifier « inconnu ».
 
